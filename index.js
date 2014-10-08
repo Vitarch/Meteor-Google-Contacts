@@ -3,7 +3,7 @@
  *
  * @see https://developers.google.com/google-apps/contacts/v3/reference#ContactsFeed
  *
- * To API test requests: 
+ * To API test requests:
  *
  * @see https://developers.google.com/oauthplayground/
  *
@@ -11,9 +11,9 @@
  *
  * @see http://jsonviewer.stack.hu/
  *
- * Note: The Contacts API has a hard limit to the number of results it can return at a 
- * time even if you explicitly request all possible results. If the requested feed has 
- * more fields than can be returned in a single response, the API truncates the feed and adds 
+ * Note: The Contacts API has a hard limit to the number of results it can return at a
+ * time even if you explicitly request all possible results. If the requested feed has
+ * more fields than can be returned in a single response, the API truncates the feed and adds
  * a "Next" link that allows you to request the rest of the response.
  */
 var EventEmitter = Npm.require('events').EventEmitter,
@@ -62,7 +62,8 @@ GoogleContacts.prototype._get = function (params, cb) {
     }
   };
 
-  // console.log(req);
+  // log our response
+  console.log(req);
 
   https.request(req, function (res) {
     var data = '';
@@ -191,6 +192,8 @@ GoogleContacts.prototype.getContacts = function (cb, contacts) {
   }
 };
 
+// Added phoneNumber and gContact:groupMembershipInfo
+// TODO: Get all emails, phoneNumbers and groupMembershipInfo
 GoogleContacts.prototype._saveContactsFromFeed = function (feed) {
   var self = this;
   //console.log(feed);
@@ -199,6 +202,8 @@ GoogleContacts.prototype._saveContactsFromFeed = function (feed) {
     try {
       var name = entry.title['$t'];
       var email = entry['gd$email'][0].address; // only save first email
+	var phoneNumber = entry['gd$phoneNumber'][0]; // only save the first phone
+	var groupMembershipInfo = entry['gContact$groupMembershipInfo'][0]; // only save the first group info
       var photoUrl;
       var mimeType;
       entry.link.some(function(link) {
@@ -209,7 +214,7 @@ GoogleContacts.prototype._saveContactsFromFeed = function (feed) {
         }
       });
       if (photoUrl){
-        self.contacts.push({ name: name, email: email, photoUrl: photoUrl, mime_type: mimeType});
+        self.contacts.push({ name: name, email: email, phoneNumber: phoneNumber, groupMembershipInfo:groupMembershipInfo, photoUrl: photoUrl, mime_type: mimeType});
       }
     }
     catch (e) {
